@@ -136,31 +136,32 @@ window.StudienplanTooltip = {
     btnContainer.innerHTML = "";
 
     if (details.pruefungen) {
-      let examEntries = [];
+      let examUrl = null;
       let zsfUrl = null;
 
       if (Array.isArray(details.pruefungen)) {
-        examEntries = details.pruefungen.filter(
+        const examEntries = details.pruefungen.filter(
           (p) => !p.label.toLowerCase().includes("zusammenfassung"),
         );
         const zsfEntries = details.pruefungen.filter((p) =>
           p.label.toLowerCase().includes("zusammenfassung"),
         );
+        if (examEntries.length > 0) examUrl = examEntries[0].url;
         if (zsfEntries.length > 0) zsfUrl = zsfEntries[0].url;
       } else {
-        examEntries = [{ url: details.pruefungen }];
+        examUrl = details.pruefungen;
       }
 
-      examEntries.forEach((entry) => {
+      if (examUrl) {
         const btn = document.createElement("a");
         btn.className = "exam-btn";
-        btn.href = entry.url;
+        btn.href = examUrl;
         btn.target = "_blank";
         btn.rel = "noopener noreferrer";
-        btn.title = entry.label || "Alte Prüfung";
-        btn.textContent = "📝 " + (entry.btnLabel || "Prüfung");
+        btn.title = "Alte Prüfung";
+        btn.textContent = "📝 Prüfung";
         btnContainer.appendChild(btn);
-      });
+      }
 
       if (zsfUrl) {
         const btn = document.createElement("a");

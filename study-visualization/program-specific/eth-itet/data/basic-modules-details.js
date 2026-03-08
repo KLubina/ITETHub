@@ -54,6 +54,10 @@ window.StudiengangModuleDetails = {
         label: "FS20 Prüfung (analysiert)",
         url: "https://raw.githubusercontent.com/KLubina/ITETHub/main/old-exams/ITET-old-exams/1.Sem/Netzwerk-Schaltungen-I/NuS1-FS20-Exam-Analyzed.pdf",
       },
+      {
+        label: "Zusammenfassung / Formelsammlung (vschuhmacher)",
+        url: "https://raw.githubusercontent.com/KLubina/ITETHub/main/old-exams/ITET-old-exams/1.Sem/Netzwerk-Schaltungen-I/Formelsammlung_NuS1_vschuhmacher.pdf",
+      },
     ],
   },
   "Technische Mechanik": {
