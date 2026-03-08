@@ -9,6 +9,14 @@ window.StudienplanTooltip = {
   initialize() {
     // Klick-Listener für alle Module (außer Platzhaltern)
     document.addEventListener("click", (e) => {
+      // Direkte Link-Indikatoren nicht abfangen – sie öffnen das PDF/Link direkt
+      if (
+        e.target.closest(
+          "a.exam-btn, a.zsf-btn, a.video-indicator, a.script-indicator, a.link-indicator, a.kurslink-indicator",
+        )
+      ) {
+        return;
+      }
       const modul = e.target.closest(".modul");
       if (modul && !modul.classList.contains("modul-platzhalter")) {
         e.preventDefault();
@@ -57,7 +65,7 @@ window.StudienplanTooltip = {
   },
 
   addIndicators(moduleElement, details) {
-    // Prüfe ob schon ein Container existiert
+    // === Top-right icon indicators ===
     let container = moduleElement.querySelector(".indicators-container");
     if (!container) {
       container = document.createElement("div");
@@ -65,49 +73,106 @@ window.StudienplanTooltip = {
       moduleElement.style.position = "relative";
       moduleElement.appendChild(container);
     }
-
-    // Leere Container (um nicht doppelt hinzuzufügen)
     container.innerHTML = "";
 
-    // Füge Indikatoren basierend auf verfügbaren Details hinzu
     if (details.vorlesungslink) {
-      const indicator = document.createElement("div");
+      const indicator = document.createElement("a");
       indicator.className = "video-indicator";
-      indicator.title = "Vorlesungsvideos verfügbar";
+      indicator.href = details.vorlesungslink;
+      indicator.target = "_blank";
+      indicator.rel = "noopener noreferrer";
+      indicator.title = "Vorlesungsvideos";
       indicator.textContent = "🎥";
       container.appendChild(indicator);
     }
 
     if (details.skript) {
-      const indicator = document.createElement("div");
+      const indicator = document.createElement("a");
       indicator.className = "script-indicator";
-      indicator.title = "Skript verfügbar";
+      indicator.href = details.skript;
+      indicator.target = "_blank";
+      indicator.rel = "noopener noreferrer";
+      indicator.title = "Skript";
       indicator.textContent = "📄";
       container.appendChild(indicator);
     }
 
-    if (details.pruefungen) {
-      const indicator = document.createElement("div");
-      indicator.className = "exam-indicator";
-      indicator.title = "Alte Prüfungen verfügbar";
-      indicator.textContent = "📝";
-      container.appendChild(indicator);
-    }
-
     if (details.link) {
-      const indicator = document.createElement("div");
+      const linkUrl = Array.isArray(details.link)
+        ? details.link[0]
+        : details.link;
+      const indicator = document.createElement("a");
       indicator.className = "link-indicator";
-      indicator.title = "VVZ Seite verfügbar";
+      indicator.href = linkUrl;
+      indicator.target = "_blank";
+      indicator.rel = "noopener noreferrer";
+      indicator.title = "VVZ Seite";
       indicator.textContent = "📖";
       container.appendChild(indicator);
     }
 
     if (details.kurslink) {
-      const indicator = document.createElement("div");
+      const kurslinkUrl =
+        typeof details.kurslink === "string" && details.kurslink.includes("\n")
+          ? details.kurslink.split("\n").filter(Boolean)[0].trim()
+          : details.kurslink;
+      const indicator = document.createElement("a");
       indicator.className = "kurslink-indicator";
-      indicator.title = "Kursunterlagen verfügbar";
+      indicator.href = kurslinkUrl;
+      indicator.target = "_blank";
+      indicator.rel = "noopener noreferrer";
+      indicator.title = "Kursunterlagen";
       indicator.textContent = "📚";
       container.appendChild(indicator);
+    }
+
+    // === Bottom rectangular buttons for Prüfung & Zusammenfassung ===
+    let btnContainer = moduleElement.querySelector(".module-btns");
+    if (!btnContainer) {
+      btnContainer = document.createElement("div");
+      btnContainer.className = "module-btns";
+      moduleElement.appendChild(btnContainer);
+    }
+    btnContainer.innerHTML = "";
+
+    if (details.pruefungen) {
+      let examUrl = null;
+      let zsfUrl = null;
+
+      if (Array.isArray(details.pruefungen)) {
+        const examEntries = details.pruefungen.filter(
+          (p) => !p.label.toLowerCase().includes("zusammenfassung"),
+        );
+        const zsfEntries = details.pruefungen.filter((p) =>
+          p.label.toLowerCase().includes("zusammenfassung"),
+        );
+        if (examEntries.length > 0) examUrl = examEntries[0].url;
+        if (zsfEntries.length > 0) zsfUrl = zsfEntries[0].url;
+      } else {
+        examUrl = details.pruefungen;
+      }
+
+      if (examUrl) {
+        const btn = document.createElement("a");
+        btn.className = "exam-btn";
+        btn.href = examUrl;
+        btn.target = "_blank";
+        btn.rel = "noopener noreferrer";
+        btn.title = "Alte Prüfung";
+        btn.textContent = "📝 Prüfung";
+        btnContainer.appendChild(btn);
+      }
+
+      if (zsfUrl) {
+        const btn = document.createElement("a");
+        btn.className = "zsf-btn";
+        btn.href = zsfUrl;
+        btn.target = "_blank";
+        btn.rel = "noopener noreferrer";
+        btn.title = "Zusammenfassung / Spick";
+        btn.textContent = "📋 Spick";
+        btnContainer.appendChild(btn);
+      }
     }
   },
 
